@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserDemo {
+  id              Int     @id @default(autoincrement())
+  email           String  @unique
+  name            String?
+  isAuthenticated Boolean @default(false)
+  googleId        String?
+  password        String?
+  OTP             OTP[]
+  Event           Event[]
+  refreshToken    String?   // New field to store refresh token
+
+}
+
+model OTP {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  otp       String
+  createdAt DateTime @default(now())
+  user      UserDemo @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  eventID     Int       @id @default(autoincrement())
+  title       String
+  description String
+  date        DateTime
+  location    String
+  virtual     Boolean
+  offline     Boolean
+  freeEntry   Boolean
+  eventType   EventType
+  organizer   UserDemo  @relation(fields: [organizerID], references: [id])
+  organizerID Int
+}
+
+enum EventType {
+  CONFERENCE
+  WORKSHOP
+}
+
+
