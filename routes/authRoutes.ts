@@ -5,6 +5,7 @@ import {
   passwordSetter,
   login,
   refreshToken,
+  resendOtp,
 } from "../controller/authController";
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.get("/refreshToken", refreshToken);
 
 // Route to create a new user
 router.post("/send-otp", sendOtp);
+router.post("/resend-otp", resendOtp);
 router.post("/set-password", passwordSetter);
 
 // // Route to retrieve a user by ID

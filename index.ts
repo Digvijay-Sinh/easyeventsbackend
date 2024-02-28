@@ -10,6 +10,7 @@ const app = express();
 app.use(cookieParser());
 
 import { PrismaClient, UserDemo } from "@prisma/client";
+import validateRequest from "./middleware/validatorMiddleware";
 
 const prisma = new PrismaClient();
 declare module "express-session" {
@@ -37,8 +38,14 @@ app.use(
   })
 );
 
+// app.use(validateRequest)
+
+app.get('/',(req :Request,res:Response)=>{
+  res.send("Home page")
+})
+
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/events", verifyJWT, eventRoutes);
+app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/auth", authRoutes);
 
 app.post("/api/v1/register", (req: Request, res: Response) => {

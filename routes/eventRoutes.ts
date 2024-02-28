@@ -1,11 +1,12 @@
 import express from "express";
 import { EventController } from "../controller/eventController";
+import verifyJWT from "../middleware/middleware";
 
 const eventController = new EventController();
 const router = express.Router();
 
 // Route to retrieve all events
-router.get("/", eventController.findAll.bind(eventController));
+router.get("/",verifyJWT, eventController.findAll.bind(eventController));
 
 // Route to create a new event
 router.post("/", eventController.create.bind(eventController));

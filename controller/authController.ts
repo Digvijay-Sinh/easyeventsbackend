@@ -16,6 +16,9 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
           email,
         },
       },
+    
+      orderBy: { createdAt: 'desc' }
+
     });
 
     if (!storedOtp) {
@@ -187,7 +190,11 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     console.log("====================================");
     console.log("reached here");
     console.log("====================================");
-    const { email, name } = req.body;
+    const { email } = req.body;
+
+    console.log('====================================');
+    console.log(email);
+    console.log('====================================');
 
     const existingUser = await prisma.userDemo.findUnique({ where: { email } });
     if (existingUser) {
@@ -198,7 +205,6 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     const newUser = await prisma.userDemo.create({
       data: {
         email,
-        name,
         isAuthenticated: false,
       },
     });
@@ -244,6 +250,97 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         });
 
         res.status(200).json({ message: `OTP sent to ${email}` });
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+export const resendOtp = async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log("====================================");
+    console.log("reached here");
+    console.log("====================================");
+    const { email } = req.body;
+
+    console.log('====================================');
+    console.log(email);
+    console.log('====================================');
+
+    const newUser = await prisma.userDemo.findUnique({ where: { email } });
+
+    console.log('=============newUSer============');
+    console.log(newUser);
+    console.log('===============newUSer===============');
+   
+
+    // const newUser = await prisma.userDemo.create({
+    //   data: {
+    //     email,
+    //     isAuthenticated: false,
+    //   },
+    // });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "eventmanagment27@gmail.com",
+        pass: "awdc gzjp zhac pshc",
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    const mailOptions = {
+      from: "eventmanagment27@gmail.com",
+      to: email,
+      subject: "OTP from easyevents",
+      text: `Your OTP is: ${otp}`,
+    };
+
+    transporter.sendMail(mailOptions, async (error, info) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error sending OTP" });
+      } else {
+        console.log(`OTP sent to ${email}: ${otp}`);
+        if (newUser) {
+          const latestOTP = await prisma.oTP.findFirst({
+            where: { userId: newUser?.id },
+            orderBy: { createdAt: 'desc' }
+          });
+          console.log('=============otpUser==============');
+          console.log(latestOTP);
+          console.log('===========otpUser=================');
+          if (latestOTP) {
+            const otpUser = await prisma.oTP.update({
+              where: { id: latestOTP.id },
+              data: { otp, createdAt: new Date() }
+            });
+            res.status(200).json({ message: `OTP resend to ${email}` });
+
+          }
+          else{
+            res.status(500).send("Internal server error");
+
+          }
+        }
+        else{
+          res.status(500).send("Internal server error");
+
+        }
+   
       }
     });
   } catch (error) {
