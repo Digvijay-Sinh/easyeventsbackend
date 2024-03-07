@@ -3,6 +3,8 @@ import { PrismaClient, UserDemo } from "@prisma/client";
 import nodemailer from "nodemailer";
 import otpGenerator from "otp-generator";
 import jwt from "jsonwebtoken";
+import { successResponseWithData, errorResponse } from './Responses'; // Import your response helper functions
+
 
 const prisma = new PrismaClient();
 
@@ -49,6 +51,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     res.status(500).send("Internal server error");
   }
 };
+
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { password, email } = req.body;
@@ -58,12 +61,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         email: email,
       },
     });
-    console.log("====================================");
-    console.log(user);
-    console.log("====================================");
+
     if (!user) {
-      res.status(400).json({ success: false, message: "No user found" });
-      return;
+       errorResponse(res, "No user found");
+       return
     }
 
     if (password == user.password) {
@@ -81,6 +82,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         "processenvREFRESHTOKENSECRET",
         { expiresIn: "1m" }
       );
+      
       // Saving refreshToken with current user
       // user.refreshToken = refreshToken;
       res.cookie("jwt", refreshToken, {
@@ -88,20 +90,77 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         secure: true,
         maxAge: 24 * 60 * 60 * 1000,
       });
-      const userNew = await prisma.userDemo.update({
+      await prisma.userDemo.update({
         where: { id: user.id }, // Specify the user by ID
         data: { refreshToken }, // Set the refreshToken field to the new value
       });
-      res.json({ accessToken });
+      
+       successResponseWithData(res, "Login successful",  {accessToken} );
+       return
     } else {
-      res.status(400).json({ success: false, message: "Invalid credentials" });
+       errorResponse(res, "Invalid credentials");
+       return
     }
   } catch (error) {
     console.error("Error:", error);
-
-    res.status(500).send("Internal server error");
+     errorResponse(res, "Internal server error");
+     return;
   }
 };
+
+// export const login = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { password, email } = req.body;
+
+//     const user = await prisma.userDemo.findFirst({
+//       where: {
+//         email: email,
+//       },
+//     });
+//     console.log("====================================");
+//     console.log(user);
+//     console.log("====================================");
+//     if (!user) {
+//       res.status(400).json({ success: false, message: "No user found" });
+//       return;
+//     }
+
+//     if (password == user.password) {
+//       const accessToken = jwt.sign(
+//         {
+//           UserInfo: {
+//             username: user.name,
+//           },
+//         },
+//         "processenvACCESSTOKENSECRET",
+//         { expiresIn: "20s" }
+//       );
+//       const refreshToken = jwt.sign(
+//         { username: user.name },
+//         "processenvREFRESHTOKENSECRET",
+//         { expiresIn: "1m" }
+//       );
+//       // Saving refreshToken with current user
+//       // user.refreshToken = refreshToken;
+//       res.cookie("jwt", refreshToken, {
+//         httpOnly: true,
+//         secure: true,
+//         maxAge: 24 * 60 * 60 * 1000,
+//       });
+//       const userNew = await prisma.userDemo.update({
+//         where: { id: user.id }, // Specify the user by ID
+//         data: { refreshToken }, // Set the refreshToken field to the new value
+//       });
+//       res.json({ accessToken });
+//     } else {
+//       res.status(400).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } catch (error) {
+//     console.error("Error:", error);
+
+//     res.status(500).send("Internal server error");
+//   }
+// };
 export const refreshToken = async (
   req: Request,
   res: Response
@@ -199,6 +258,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     const existingUser = await prisma.userDemo.findUnique({ where: { email } });
     if (existingUser) {
       console.log("User exists");
+      res.status(400).json({ message: "User already exists" });
       return;
     }
 
@@ -270,6 +330,12 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
 
     const newUser = await prisma.userDemo.findUnique({ where: { email } });
 
+    if (!newUser) {
+      res.status(400).json({ message: "User does not exists" });
+      return;
+      
+    }
+
     console.log('=============newUSer============');
     console.log(newUser);
     console.log('===============newUSer===============');
@@ -312,7 +378,7 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
     transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
         console.error(error);
-        res.status(500).json({ error: "Error sending OTP" });
+        res.status(500).json({ message: "Error sending OTP" });
       } else {
         console.log(`OTP sent to ${email}: ${otp}`);
         if (newUser) {
@@ -328,16 +394,16 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
               where: { id: latestOTP.id },
               data: { otp, createdAt: new Date() }
             });
-            res.status(200).json({ message: `OTP resend to ${email}` });
+            res.status(200).json({ message: `OTP resent to ${email}` });
 
           }
           else{
-            res.status(500).send("Internal server error");
+            res.status(500).json({message:"Internal server error"});
 
           }
         }
         else{
-          res.status(500).send("Internal server error");
+          res.status(500).json({message:"Internal server error"});
 
         }
    
@@ -345,6 +411,6 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send("Internal server error");
+    res.status(500).json({message:"Internal server error"});
   }
 };
