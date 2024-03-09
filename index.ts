@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import userRoutes from "./routes/userRoutes";
+import imageUpload from "./routes/imageUpload";
 import authRoutes from "./routes/authRoutes";
 import eventRoutes from "./routes/eventRoutes";
 import verifyJWT from "./middleware/middleware";
@@ -11,6 +12,7 @@ app.use(cookieParser());
 
 import { PrismaClient, UserDemo } from "@prisma/client";
 import validateRequest from "./middleware/validatorMiddleware";
+import path from "path";
 
 const prisma = new PrismaClient();
 declare module "express-session" {
@@ -38,6 +40,9 @@ app.use(
   })
 );
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 // app.use(validateRequest)
 
 app.get('/',(req :Request,res:Response)=>{
@@ -47,6 +52,7 @@ app.get('/',(req :Request,res:Response)=>{
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/imageUpload", imageUpload);
 
 app.post("/api/v1/register", (req: Request, res: Response) => {
   const { firstname, lastname, email } = req.body;

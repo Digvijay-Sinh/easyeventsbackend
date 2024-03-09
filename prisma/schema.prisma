@@ -43,6 +43,8 @@ model Event {
   eventType   EventType
   organizer   UserDemo  @relation(fields: [organizerID], references: [id])
   organizerID Int
+  posterImage String @default("default_poster_image.jpg")
+  thumbnailImage String  @default("default_thumbnail_image.jpg")
 }
 
 enum EventType {

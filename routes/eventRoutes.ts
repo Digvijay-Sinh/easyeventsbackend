@@ -6,7 +6,12 @@ const eventController = new EventController();
 const router = express.Router();
 
 // Route to retrieve all events
-router.get("/",verifyJWT, eventController.findAll.bind(eventController));
+//v1
+// router.get("/",verifyJWT, eventController.findAll.bind(eventController));
+
+
+//v2
+router.get("/", eventController.findAll.bind(eventController));
 
 // Route to create a new event
 router.post("/", eventController.create.bind(eventController));
