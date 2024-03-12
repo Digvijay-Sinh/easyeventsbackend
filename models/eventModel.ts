@@ -12,17 +12,17 @@ export class EventModel {
   }
 
   async findById(eventId: number): Promise<Event | null> {
-    return prisma.event.findUnique({ where: { eventID: eventId } });
+    return prisma.event.findUnique({ where: { id: eventId } });
   }
 
   async update(eventId: number, eventData: any): Promise<Event> {
     return prisma.event.update({
-      where: { eventID: eventId },
+      where: { id: eventId },
       data: eventData,
     });
   }
 
   async remove(eventId: number): Promise<void> {
-    await prisma.event.delete({ where: { eventID: eventId } });
+    await prisma.event.delete({ where: { id: eventId } });
   }
 }

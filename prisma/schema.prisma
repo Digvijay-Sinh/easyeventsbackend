@@ -1,6 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,6 +6,94 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Define Event model
+model Event {
+  id                    Int       @id @default(autoincrement())
+  title                 String
+  description           String
+  start_date            DateTime  @db.Timestamptz(3)
+  end_date              DateTime  @db.Timestamptz(3)
+  start_date_toRegister DateTime  @db.Timestamptz(3)
+  end_date_toRegister   DateTime  @db.Timestamptz(3)
+  mode                  EventMode // online or offline
+  capacity              Int
+  price                 Float
+
+  // Relationships
+  organizer           UserDemo              @relation(fields: [organizer_id], references: [id])
+  organizer_id        Int
+  venue               Venue                 @relation(fields: [venue_id], references: [id])
+  venue_id            Int
+  category            Category              @relation(fields: [category_id], references: [id])
+  category_id         Int
+  type                Type                  @relation(fields: [type_id], references: [id])
+  type_id             Int
+  speakers            Speaker[] // Many-to-many relation with Speaker model
+  images              Image[] // One-to-many relation with Image model
+  EventSpeakerMapping EventSpeakerMapping[]
+}
+
+// Define Speaker model
+model Speaker {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  bio                 String
+  email               String                @unique
+  organization        String?
+  events              Event[] // Many-to-many relation with Event model
+  EventSpeakerMapping EventSpeakerMapping[]
+}
+
+// Define EventSpeakerMapping model
+model EventSpeakerMapping {
+  id         Int     @id @default(autoincrement())
+  event      Event   @relation(fields: [event_id], references: [id])
+  event_id   Int
+  speaker    Speaker @relation(fields: [speaker_id], references: [id])
+  speaker_id Int
+}
+
+// Define Venue model
+model Venue {
+  id              Int     @id @default(autoincrement())
+  name            String
+  latitude        Float
+  longitude       Float
+  address         String
+  city            String
+  state           String
+  country         String
+  google_place_id String
+  events          Event[] // One-to-many relation with Event model
+}
+
+// Define Image model
+model Image {
+  id              Int    @id @default(autoincrement())
+  poster_image    String
+  event           Event  @relation(fields: [event_id], references: [id])
+  event_id        Int
+}
+
+// Define Category model
+model Category {
+  id     Int     @id @default(autoincrement())
+  name   String
+  events Event[] // One-to-many relation with Event model
+}
+
+// Define Type model
+model Type {
+  id     Int     @id @default(autoincrement())
+  name   String
+  events Event[] // One-to-many relation with Event model
+}
+
+enum EventMode {
+  ONLINE
+  OFFLINE
 }
 
 model UserDemo {
@@ -18,9 +104,9 @@ model UserDemo {
   googleId        String?
   password        String?
   OTP             OTP[]
-  Event           Event[]
-  refreshToken    String?   // New field to store refresh token
+  refreshToken    String? // New field to store refresh token
 
+  Event Event[]
 }
 
 model OTP {
@@ -30,26 +116,3 @@ model OTP {
   createdAt DateTime @default(now())
   user      UserDemo @relation(fields: [userId], references: [id])
 }
-
-model Event {
-  eventID     Int       @id @default(autoincrement())
-  title       String
-  description String
-  date        DateTime
-  location    String
-  virtual     Boolean
-  offline     Boolean
-  freeEntry   Boolean
-  eventType   EventType
-  organizer   UserDemo  @relation(fields: [organizerID], references: [id])
-  organizerID Int
-  posterImage String @default("default_poster_image.jpg")
-  thumbnailImage String  @default("default_thumbnail_image.jpg")
-}
-
-enum EventType {
-  CONFERENCE
-  WORKSHOP
-}
-
-
