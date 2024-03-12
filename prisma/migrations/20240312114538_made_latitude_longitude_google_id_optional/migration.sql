@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Venue" ALTER COLUMN "latitude" DROP NOT NULL,
+ALTER COLUMN "latitude" SET DEFAULT 0.0,
+ALTER COLUMN "longitude" DROP NOT NULL,
+ALTER COLUMN "longitude" SET DEFAULT 0.0,
+ALTER COLUMN "google_place_id" DROP NOT NULL,
+ALTER COLUMN "google_place_id" SET DEFAULT '';
