@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from "express";
 import imageUpload from "./routes/imageUpload";
 import authRoutes from "./routes/authRoutes";
 import eventRoutes from "./routes/eventRoutes";
+import venueRoutes from "./routes/venueRoutes";
 import verifyJWT from "./middleware/middleware";
 import cors from "cors";
 import session, { Session } from "express-session";
@@ -54,6 +55,7 @@ app.get('/',(req :Request,res:Response)=>{
 app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/imageUpload", imageUpload);
+app.use("/api/v1/venue", venueRoutes);
 
 app.post("/api/v1/register", (req: Request, res: Response) => {
   const { firstname, lastname, email } = req.body;
@@ -105,7 +107,7 @@ app.post('/createEvent', async (req, res) => {
           connect: speakers.map((speakerId :number )=> ({ id: speakerId }))
         },
         images: {
-          create: images.map((imageUrl: string) => ({ thumbnail_image: imageUrl, poster_image: imageUrl }))
+          create: images.map((imageUrl: string) => ({  poster_image: imageUrl }))
         }
       },
       include: {
