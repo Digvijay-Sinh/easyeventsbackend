@@ -19,7 +19,7 @@ model Event {
   end_date_toRegister   DateTime  @db.Timestamptz(3)
   mode                  EventMode // online or offline
   capacity              Int
-  price                 Float
+  price                 Int
 
   // Relationships
   organizer           UserDemo              @relation(fields: [organizer_id], references: [id])
@@ -42,6 +42,7 @@ model Speaker {
   bio                 String
   email               String                @unique
   organization        String?
+  image              String?               
   events              Event[] // Many-to-many relation with Event model
   EventSpeakerMapping EventSpeakerMapping[]
 }
@@ -81,6 +82,7 @@ model Image {
 model Category {
   id     Int     @id @default(autoincrement())
   name   String
+  image  String  @default("") 
   events Event[] // One-to-many relation with Event model
 }
 

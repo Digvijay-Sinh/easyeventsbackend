@@ -25,12 +25,33 @@ const upload = multer({
       
     }
     })
-router.post('/upload', upload.single('image'), (req, res) => {
-    // Handle the uploaded file here
-    const file = req.file;
-    // Do something with the file, such as saving it to a database or processing it further
-    res.send('File uploaded successfully');
-});
+    router.post('/upload', upload.single('image'), (req, res) => {
+        try {
 
+            console.log(req.file);
+            
+            // Check if file is present in the request
+            if (!req.file) {
+                throw new Error('No file uploaded');
+            }
+    
+            // Handle the uploaded file here
+            const file = req.file;
+            // Do something with the file, such as saving it to a database or processing it further
+            
+            // Assuming file.filename contains the filename of the uploaded file
+            const filename = file.filename;
+            
+            // If you want to send the filename as a response
+            res.json({ data: filename });
+            
+            // If you want to send the URL of the uploaded image as a response
+            // const imageUrl = `http://yourdomain.com/uploads/${filename}`;
+            // res.json({ imageUrl });
+        } catch (error : any) {
+            console.error('Error:', error.message);
+            res.status(500).json({ error: error.message }); // Send error response
+        }
+    });
 
 export default router;

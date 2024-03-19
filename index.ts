@@ -4,6 +4,11 @@ import imageUpload from "./routes/imageUpload";
 import authRoutes from "./routes/authRoutes";
 import eventRoutes from "./routes/eventRoutes";
 import venueRoutes from "./routes/venueRoutes";
+import categoryRoutes from "./routes/categoryRoutes";
+import typeRoutes from "./routes/typeRoutes";
+import eventSpeakerMappingRoutes from "./routes/eventSpeakerMappingRoutes";
+import speakerRoutes from "./routes/speakerRoutes";
+import posterImage from "./routes/posterImageRoutes";
 import verifyJWT from "./middleware/middleware";
 import cors from "cors";
 import session, { Session } from "express-session";
@@ -56,6 +61,11 @@ app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/imageUpload", imageUpload);
 app.use("/api/v1/venue", venueRoutes);
+app.use("/api/v1/category", categoryRoutes);
+app.use("/api/v1/types", typeRoutes);
+app.use("/api/v1/eventSpeakerMapping", eventSpeakerMappingRoutes);
+app.use("/api/v1/speakers", speakerRoutes);
+app.use("/api/v1/posterImage", posterImage);
 
 app.post("/api/v1/register", (req: Request, res: Response) => {
   const { firstname, lastname, email } = req.body;
