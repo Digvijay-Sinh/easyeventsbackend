@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Booking" ALTER COLUMN "bookingDateTime" DROP DEFAULT,
+ALTER COLUMN "bookingDateTime" SET DATA TYPE TIMESTAMPTZ(3);

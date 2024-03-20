@@ -12,9 +12,23 @@ export class EventModel {
     return eventsWithRelatedInfo;
     // return prisma.event.findMany();
   }
-  async findAllInDetail(): Promise<Event[]> {
+  async findAllInDetail(eventId: number): Promise<Event[]> {
+
+    const eventSpeakers = await prisma.eventSpeakerMapping.findMany({
+      where: {
+        event_id: eventId,
+      },
+      include: {
+        speaker: true,
+      },
+    });
+
+    console.log("==============eventModel.ts===========");
+    console.log(eventSpeakers);
+    
 
     const eventsWithRelatedInfo = await prisma.event.findMany({
+      where: { id: eventId },
       include: {
         organizer: true,
         venue: true,
@@ -28,8 +42,15 @@ export class EventModel {
         images: true,
       },
     });
+
+    const finalReturnData= eventsWithRelatedInfo.map((event) => {
+      return {
+        ...event,
+        speakers: eventSpeakers.map((eventSpeaker) => eventSpeaker.speaker),
+      };
+    })
     
-    return eventsWithRelatedInfo;
+    return finalReturnData;
     // return prisma.event.findMany();
   }
 

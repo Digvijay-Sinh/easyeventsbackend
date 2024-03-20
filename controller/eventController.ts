@@ -17,7 +17,12 @@ export class EventController {
   }
   async findAllInDetail(req: Request, res: Response): Promise<void> {
     try {
-      const events = await eventModel.findAllInDetail();
+      const eventId = Number(req.params.id);
+      console.log("==============eventController.ts===========");
+      console.log(eventId);
+      
+
+      const events = await eventModel.findAllInDetail(eventId);
       res.send(events);
     } catch (error) {
       console.error("Error:", error);

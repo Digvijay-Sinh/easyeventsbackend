@@ -9,6 +9,7 @@ import typeRoutes from "./routes/typeRoutes";
 import eventSpeakerMappingRoutes from "./routes/eventSpeakerMappingRoutes";
 import speakerRoutes from "./routes/speakerRoutes";
 import posterImage from "./routes/posterImageRoutes";
+import bookingRoutes from "./routes/bookingRoutes";
 import verifyJWT from "./middleware/middleware";
 import cors from "cors";
 import session, { Session } from "express-session";
@@ -66,6 +67,7 @@ app.use("/api/v1/types", typeRoutes);
 app.use("/api/v1/eventSpeakerMapping", eventSpeakerMappingRoutes);
 app.use("/api/v1/speakers", speakerRoutes);
 app.use("/api/v1/posterImage", posterImage);
+app.use("/api/v1/booking", bookingRoutes);
 
 app.post("/api/v1/register", (req: Request, res: Response) => {
   const { firstname, lastname, email } = req.body;

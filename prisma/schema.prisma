@@ -33,6 +33,7 @@ model Event {
   speakers            Speaker[] // Many-to-many relation with Speaker model
   images              Image[] // One-to-many relation with Image model
   EventSpeakerMapping EventSpeakerMapping[]
+  Booking             Booking[]
 }
 
 // Define Speaker model
@@ -42,7 +43,7 @@ model Speaker {
   bio                 String
   email               String                @unique
   organization        String?
-  image              String?               
+  image               String?
   events              Event[] // Many-to-many relation with Event model
   EventSpeakerMapping EventSpeakerMapping[]
 }
@@ -60,29 +61,29 @@ model EventSpeakerMapping {
 model Venue {
   id              Int     @id @default(autoincrement())
   name            String
-  latitude        Float?   @default(0.0)
-  longitude       Float?   @default(0.0)
+  latitude        Float?  @default(0.0)
+  longitude       Float?  @default(0.0)
   address         String
   city            String
   state           String
   country         String
-  google_place_id String?   @default("")  
+  google_place_id String? @default("")
   events          Event[] // One-to-many relation with Event model
 }
 
 // Define Image model
 model Image {
-  id              Int    @id @default(autoincrement())
-  poster_image    String
-  event           Event  @relation(fields: [event_id], references: [id])
-  event_id        Int
+  id           Int    @id @default(autoincrement())
+  poster_image String
+  event        Event  @relation(fields: [event_id], references: [id])
+  event_id     Int
 }
 
 // Define Category model
 model Category {
   id     Int     @id @default(autoincrement())
   name   String
-  image  String  @default("") 
+  image  String  @default("")
   events Event[] // One-to-many relation with Event model
 }
 
@@ -108,7 +109,8 @@ model UserDemo {
   OTP             OTP[]
   refreshToken    String? // New field to store refresh token
 
-  Event Event[]
+  Event   Event[]
+  Booking Booking[]
 }
 
 model OTP {
@@ -117,4 +119,21 @@ model OTP {
   otp       String
   createdAt DateTime @default(now())
   user      UserDemo @relation(fields: [userId], references: [id])
+}
+
+// Define Booking model
+model Booking {
+  id               Int      @id @default(autoincrement())
+  eventId          Int
+  userId           Int
+  bookingDateTime  DateTime  @db.Timestamptz(3)
+  numberOfTickets  Int
+  bookingStatus    String // You can use an enum for booking status (e.g., confirmed, pending, cancelled)
+  paymentStatus    String // You can use an enum for payment status (e.g., paid, pending, refunded)
+  paymentMethod    String // The method used for payment (e.g., credit card, PayPal)
+  totalAmount      Int
+  bookingReference String   @unique
+  // Define relationships
+  event            Event    @relation(fields: [eventId], references: [id])
+  user             UserDemo @relation(fields: [userId], references: [id])
 }
