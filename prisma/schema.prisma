@@ -103,6 +103,8 @@ model UserDemo {
   id              Int     @id @default(autoincrement())
   email           String  @unique
   name            String?
+  profileImage    String? @default("defaultProfileImage.png")
+  mobileNumber    String? @default("")
   isAuthenticated Boolean @default(false)
   googleId        String?
   password        String?

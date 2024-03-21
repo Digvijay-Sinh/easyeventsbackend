@@ -1,6 +1,26 @@
-import { PrismaClient, Event } from "@prisma/client";
+import { PrismaClient, Event, Booking, UserDemo } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+interface SelectedUserData {
+  id: number;
+  email: string;
+  name: string | null;
+  isAuthenticated: boolean;
+  googleId: string | null;
+}
+
+type UserEventsDetails = {
+  userData: SelectedUserData[];
+  userParticipatedEvents: UserParticipation[];
+  organizerEvents: Event[];
+};
+
+type UserParticipation = {
+  booking: Booking;
+};
+
+
 
 export class EventModel {
   async findAll(): Promise<Event[]> {
@@ -95,4 +115,58 @@ export class EventModel {
   async remove(eventId: number): Promise<void> {
     await prisma.event.delete({ where: { id: eventId } });
   }
+
+
+  async getUserEventsDetails(userId: number): Promise<UserEventsDetails> {
+
+    const userData = await prisma.userDemo.findMany({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isAuthenticated: true,
+        googleId: true,
+    },
+    });
+
+    const userParticipatedEvents = await prisma.booking.findMany({
+        where: {
+            userId: userId,
+        },
+        include: {
+            event: {
+                include: {
+                    venue: true,
+                 
+                    images: true,
+                },
+            },
+        },
+    });
+
+    const organizerEvents = await prisma.event.findMany({
+        where: {
+            organizer_id: userId,
+        },
+        include: {
+            venue: true,
+          
+            images: true,
+        },
+    });
+
+    return {
+      userData: userData,
+        userParticipatedEvents: userParticipatedEvents.map((booking) => {
+            return {
+                booking: booking,
+            };
+        }),
+        organizerEvents: organizerEvents,
+    };
+}
+
 }

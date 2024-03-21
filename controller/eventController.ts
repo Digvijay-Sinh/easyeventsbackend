@@ -29,6 +29,20 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
+  async getUserEventsDetails(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = Number(req.params.id);
+      console.log("==============eventController.ts===========");
+      console.log(userId);
+      
+
+      const events = await eventModel.getUserEventsDetails(userId);
+      res.send(events);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
 
   async create(req: Request, res: Response): Promise<void> {
     try {

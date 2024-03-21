@@ -13,6 +13,7 @@ const router = express.Router();
 //v2
 router.get("/", eventController.findAll.bind(eventController));
 router.get("/detailed/:id", eventController.findAllInDetail.bind(eventController));
+router.get("/getUserEventsDetails/:id", eventController.getUserEventsDetails.bind(eventController));
 
 // Route to create a new event
 router.post("/", eventController.create.bind(eventController));

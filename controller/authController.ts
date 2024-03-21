@@ -75,12 +75,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           },
         },
         "processenvACCESSTOKENSECRET",
-        { expiresIn: "20s" }
+        { expiresIn: "1d" }
       );
       const refreshToken = jwt.sign(
         { username: user.name },
         "processenvREFRESHTOKENSECRET",
-        { expiresIn: "1m" }
+        { expiresIn: "2d" }
       );
       
       // Saving refreshToken with current user
@@ -249,10 +249,11 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     console.log("====================================");
     console.log("reached here");
     console.log("====================================");
-    const { email } = req.body;
+    const { email, name } = req.body;
 
     console.log('====================================');
     console.log(email);
+    console.log(name);
     console.log('====================================');
 
     const existingUser = await prisma.userDemo.findUnique({ where: { email } });
@@ -265,6 +266,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     const newUser = await prisma.userDemo.create({
       data: {
         email,
+        name,
         isAuthenticated: false,
       },
     });
