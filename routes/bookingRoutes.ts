@@ -1,5 +1,6 @@
 import express from "express";
 import { BookingController } from "../controller/bookingController";
+import verifyJWT from "../middleware/middleware";
 
 const bookingController = new BookingController();
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 router.get("/", bookingController.findAll.bind(bookingController));
 
 // Route to create a new booking
-router.post("/", bookingController.create.bind(bookingController));
+router.post("/", verifyJWT ,bookingController.create.bind(bookingController));
 
 // Route to retrieve a booking by ID
 router.get("/:id", bookingController.findById.bind(bookingController));

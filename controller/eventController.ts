@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { EventModel } from "../models/eventModel";
 import {ImageModel} from '../models/posterImageModel';
+import { CustomRequest } from "../middleware/middleware";
 
 const eventModel = new EventModel();
 const imageModel = new ImageModel();
@@ -29,14 +30,14 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
-  async getUserEventsDetails(req: Request, res: Response): Promise<void> {
+  async getUserEventsDetails(req: CustomRequest, res: Response): Promise<void> {
     try {
-      const userId = Number(req.params.id);
+      const userId = req?.user as string ;
       console.log("==============eventController.ts===========");
       console.log(userId);
       
 
-      const events = await eventModel.getUserEventsDetails(userId);
+      const events = await eventModel.getUserEventsDetails(parseInt(userId));
       res.send(events);
     } catch (error) {
       console.error("Error:", error);

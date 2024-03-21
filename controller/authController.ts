@@ -71,7 +71,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       const accessToken = jwt.sign(
         {
           UserInfo: {
-            username: user.name,
+            userId: user.id,
           },
         },
         "processenvACCESSTOKENSECRET",
@@ -192,11 +192,11 @@ export const refreshToken = async (
       const accessToken = jwt.sign(
         {
           UserInfo: {
-            username: decoded.username,
+            userId: decoded.id,
           },
         },
         "processenvACCESSTOKENSECRET",
-        { expiresIn: "10s" }
+        { expiresIn: "1d" }
       );
       res.json({ accessToken });
     }

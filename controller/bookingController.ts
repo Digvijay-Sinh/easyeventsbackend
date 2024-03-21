@@ -3,6 +3,8 @@ import { BookingModel } from "../models/bookingModel";
 
 const bookingModel = new BookingModel();
 
+import { CustomRequest } from "../middleware/middleware";
+
 export class BookingController {
   async findAll(req: Request, res: Response): Promise<void> {
     try {
@@ -14,16 +16,21 @@ export class BookingController {
     }
   }
 
-  async create(req: Request, res: Response): Promise<void> {
+  async create(req: CustomRequest, res: Response): Promise<void> {
     try {
-      const newBooking = await bookingModel.create(req.body);
+
+      const userId=req.user 
+      console.log('========fsdfsdfdsfsdfsdds===============');
+      console.log(userId);
+      console.log('====================================');
+      const newBooking = await bookingModel.create({...req.body, userId: userId});
       res.json({
         error: false,
         message: "Booking added successfully!",
         data: newBooking,
       });
     } catch (error) {
-      console.error("Error:", error);
+      console.log("Error:", error);
       res.status(500).send("Internal server error");
     }
   }
