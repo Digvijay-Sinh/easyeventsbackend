@@ -1,0 +1,26 @@
+{
+    "categories": [
+        "Business & Networking",
+        "Entertainment",
+        "Arts & Culture",
+        "Sports & Fitness",
+        "Food & Drink",
+        "Education & Workshops",
+        "Technology & Innovation",
+        "Health & Wellness",
+        "Family & Kids",
+        "Community & Social Gatherings"
+    ],
+    "event_types": [
+        "Conference",
+        "Concert",
+        "Festival",
+        "Seminar",
+        "Workshop",
+        "Trade Show",
+        "Party",
+        "Webinar",
+        "Meetup",
+        "Class"
+    ]
+}

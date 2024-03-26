@@ -9,11 +9,18 @@ const router = express.Router();
 //v1
 // router.get("/",verifyJWT, eventController.findAll.bind(eventController));
 
-
 //v2
-router.get("/",eventController.findAll.bind(eventController));
-router.get("/detailed/:id", eventController.findAllInDetail.bind(eventController));
-router.get("/getUserEventsDetails", verifyJWT,eventController.getUserEventsDetails.bind(eventController));
+router.get("/", eventController.findAll.bind(eventController));
+router.get("/search", eventController.search.bind(eventController));
+router.get(
+  "/detailed/:id",
+  eventController.findAllInDetail.bind(eventController)
+);
+router.get(
+  "/getUserEventsDetails",
+  verifyJWT,
+  eventController.getUserEventsDetails.bind(eventController)
+);
 
 // Route to create a new event
 router.post("/", eventController.create.bind(eventController));

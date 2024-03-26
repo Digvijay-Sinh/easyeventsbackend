@@ -30,7 +30,6 @@ model Event {
   category_id         Int
   type                Type                  @relation(fields: [type_id], references: [id])
   type_id             Int
-  speakers            Speaker[] // Many-to-many relation with Speaker model
   images              Image[] // One-to-many relation with Image model
   EventSpeakerMapping EventSpeakerMapping[]
   Booking             Booking[]
@@ -44,7 +43,6 @@ model Speaker {
   email               String                @unique
   organization        String?
   image               String?
-  events              Event[] // Many-to-many relation with Event model
   EventSpeakerMapping EventSpeakerMapping[]
 }
 

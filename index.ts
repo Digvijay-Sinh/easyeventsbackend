@@ -48,14 +48,13 @@ app.use(
   })
 );
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // app.use(validateRequest)
 
-app.get('/',(req :Request,res:Response)=>{
-  res.send("Home page")
-})
+app.get("/", (req: Request, res: Response) => {
+  res.send("Home page");
+});
 
 // app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/events", eventRoutes);
@@ -83,58 +82,53 @@ app.post("/api/v1/register", (req: Request, res: Response) => {
     .json({ success: true, message: "User registered successfully" });
 });
 
+// app.post('/createEvent', async (req, res) => {
+//   try {
+//     // Extract data from the request body
+//     const { title, description, start_date, end_date, start_date_toRegister, end_date_toRegister, mode, capacity, price, organizer_id, venue_id, category_id, type_id, speakers, images } = req.body;
 
+//     const parsedCapacity = parseInt(capacity);
+//     const parsedPrice = parseFloat(price);
+//     const parsedOrganizerId = parseInt(organizer_id);
+//     const parsedVenueId = parseInt(venue_id);
+//     const parsedCategoryId = parseInt(category_id);
+//     const parsedTypeId = parseInt(type_id);
+//     // Create the event in the database using Prisma Client
+//     const event = await prisma.event.create({
+//       data: {
+//         title,
+//         description,
+//         start_date,
+//         end_date,
+//         start_date_toRegister,
+//         end_date_toRegister,
+//         mode,
+//         capacity: parsedCapacity,
+//         price: parsedPrice,
+//         organizer_id: parsedOrganizerId,
+//         venue_id : parsedVenueId,
+//         category_id : parsedCategoryId,
+//         type_id : parsedTypeId,
+//         speakers: {
+//           connect: speakers.map((speakerId :number )=> ({ id: speakerId }))
+//         },
+//         images: {
+//           create: images.map((imageUrl: string) => ({  poster_image: imageUrl }))
+//         }
+//       },
+//       include: {
+//         speakers: true,
+//         images: true
+//       }
+//     });
 
-
-
-app.post('/createEvent', async (req, res) => {
-  try {
-    // Extract data from the request body
-    const { title, description, start_date, end_date, start_date_toRegister, end_date_toRegister, mode, capacity, price, organizer_id, venue_id, category_id, type_id, speakers, images } = req.body;
-
-
-    const parsedCapacity = parseInt(capacity);
-    const parsedPrice = parseFloat(price);
-    const parsedOrganizerId = parseInt(organizer_id);
-    const parsedVenueId = parseInt(venue_id);
-    const parsedCategoryId = parseInt(category_id);
-    const parsedTypeId = parseInt(type_id);
-    // Create the event in the database using Prisma Client
-    const event = await prisma.event.create({
-      data: {
-        title,
-        description,
-        start_date,
-        end_date,
-        start_date_toRegister,
-        end_date_toRegister,
-        mode,
-        capacity: parsedCapacity,
-        price: parsedPrice,
-        organizer_id: parsedOrganizerId,
-        venue_id : parsedVenueId,
-        category_id : parsedCategoryId,
-        type_id : parsedTypeId,
-        speakers: {
-          connect: speakers.map((speakerId :number )=> ({ id: speakerId }))
-        },
-        images: {
-          create: images.map((imageUrl: string) => ({  poster_image: imageUrl }))
-        }
-      },
-      include: {
-        speakers: true,
-        images: true
-      }
-    });
-
-    // Send the created event as a response
-    res.json(event);
-  } catch (error) {
-    console.error('Error creating event:', error);
-    res.status(500).json({ error: 'An error occurred while creating the event.' });
-  }
-});
+//     // Send the created event as a response
+//     res.json(event);
+//   } catch (error) {
+//     console.error('Error creating event:', error);
+//     res.status(500).json({ error: 'An error occurred while creating the event.' });
+//   }
+// });
 
 // Middleware function to decode and verify JWT token
 // app.post("/api/protected", authenticateToken, (req: Request, res: Response) => {
