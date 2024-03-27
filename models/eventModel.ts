@@ -68,6 +68,45 @@ export class EventModel {
   async create(eventData: any): Promise<Event> {
     return prisma.event.create({ data: eventData });
   }
+  async updateBasicDetail(eventId: number, updatedEventData: any): Promise<Event | null> {
+    try {
+      // Fetch the event to verify the organizer_id
+      const existingEvent = await prisma.event.findUnique({
+        where: {
+          id: eventId,
+        },
+        select: {
+          organizer_id: true,
+        },
+      });
+  
+      if (!existingEvent) {
+        console.error("Event not found");
+        return null;
+      }
+  
+      // Check if the provided organizer_id matches the organizer_id of the event
+      if (existingEvent.organizer_id !== updatedEventData.organizer_id) {
+        console.error("Organizer ID mismatch");
+        return null;
+      }
+  
+      // Proceed with the update
+      const updatedEvent = await prisma.event.update({
+        where: {
+          id: eventId,
+        },
+        data: updatedEventData,
+      });
+  
+      return updatedEvent;
+    } catch (error) {
+      // Handle error
+      console.error("Error updating event:", error);
+      return null;
+    }
+  }
+  
   // async create(eventData: any): Promise<Event> {
 
   //   const {images, speakers, ...rest } = eventData;
@@ -156,7 +195,7 @@ export class EventModel {
 
   async search(searchTerm: string, filters?: SearchFilters): Promise<Event[]> {
     const query = searchTerm;
-
+    
     const filterConditions: any[] = [];
 
     if (filters?.category) {
@@ -171,14 +210,30 @@ export class EventModel {
       });
     }
 
+    // if (filters?.startDate && filters?.endDate) {
+    //   // Include filter conditions for start and end dates if provided
+    //   filterConditions.push({
+    //     start_date: { gte: new Date(filters.startDate) },
+    //     end_date: { lte: new Date(filters.endDate) },
+    //   });
+    // }
     if (filters?.startDate && filters?.endDate) {
-      // Include filter conditions for start and end dates if provided
+      // Extract the date part from the provided start and end dates
+      const startDate = new Date(filters.startDate);
+      const endDate = new Date(filters.endDate);
+    
+      // Extract only the date part
+      const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    
+      // Include filter conditions for start and end dates
       filterConditions.push({
-        start_date: { gte: new Date(filters.startDate) },
-        end_date: { lte: new Date(filters.endDate) },
+        // Compare with the start of the provided date (00:00:00)
+        start_date: { gte: startDateOnly },
+        // Compare with the end of the provided date (23:59:59)
+        end_date: { lte: new Date(endDateOnly.getTime() + (24 * 60 * 60 * 1000 - 1)) }, // Add one day and subtract one millisecond
       });
     }
-
     console.log(filterConditions);
 
     const events = await prisma.event.findMany({
@@ -193,10 +248,11 @@ export class EventModel {
             ],
           },
 
-          ...filterConditions,
+          ...(filterConditions.length > 0 ? filterConditions : []),
         ],
       },
       include: {
+        images: true,
         category: true, // Include the category information
         type: true, // Include the type information
       },

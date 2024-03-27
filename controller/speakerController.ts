@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { SpeakerModel } from "../models/speakerModel";
 import { EventSpeakerMappingModel } from "../models/eventSpeakerMappingModel";
 import { log } from "console";
+import { CustomRequest } from "../middleware/middleware";
 
 const speakerModel = new SpeakerModel();
 const eventSpeakerMappingModel = new EventSpeakerMappingModel();
@@ -65,10 +66,13 @@ export class SpeakerController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async updateSpeaker(req: CustomRequest, res: Response): Promise<void> {
     try {
+
       const speakerId = Number(req.params.id);
-      const updatedSpeaker = await speakerModel.update(speakerId, req.body);
+      const { speakerData } = req.body;
+
+      const updatedSpeaker = await speakerModel.updateSpeaker(speakerId, {...speakerData, organizer_id: req?.user as string});
       res.json({
         error: false,
         message: "Speaker successfully updated",

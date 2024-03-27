@@ -70,30 +70,34 @@ export class EventController {
     }
   }
 
-  async create(req: Request, res: Response): Promise<void> {
+  async create(req: CustomRequest , res: Response): Promise<void> {
     try {
-      const {
-        title,
-        description,
-        start_date,
-        end_date,
-        start_date_toRegister,
-        end_date_toRegister,
-        mode,
-        capacity,
-        organizer_id,
-        venue_id,
-        category_id,
-        type_id,
-        price,
-      } = req.body;
+ 
       console.log("==============create event model===========");
       console.log(req.body);
       console.log("====================================");
-      const newEvent = await eventModel.create(req.body);
+      const newEvent = await eventModel.create({...req.body, organizer_id: req?.user as string});
       res.json({
         error: false,
         message: "Event added successfully!",
+        data: newEvent,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
+  async updateBasicDetail(req: CustomRequest , res: Response): Promise<void> {
+    try {
+      const eventId = Number(req.params.id);
+
+      console.log("==============create event model===========");
+      console.log(req.body);
+      console.log("====================================");
+      const newEvent = await eventModel.updateBasicDetail( eventId,{...req.body, organizer_id: req?.user as string});
+      res.json({
+        error: false,
+        message: "Event updated successfully!",
         data: newEvent,
       });
     } catch (error) {

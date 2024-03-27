@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ImageModel } from "../models/posterImageModel";
+import { CustomRequest } from "../middleware/middleware";
 
 const imageModel = new ImageModel();
 
@@ -20,6 +21,23 @@ export class ImageController {
     try {
         const {eventId, filename} = req.body;
       const newImage = await imageModel.create({eventId,poster_image:filename});
+      res.json({
+        error: false,
+        message: "Image added successfully!",
+        data: newImage,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
+  async updatePosterImage(req: CustomRequest, res: Response): Promise<void> {
+    try {
+
+      const userId = req?.user as string;
+        const {eventId, filename} = req.body;
+      const newImage = await imageModel.updatePoster(
+        {eventId,poster_image:filename, userId: parseInt(userId)});
       res.json({
         error: false,
         message: "Image added successfully!",

@@ -8,7 +8,11 @@ export class CategoryModel {
     
     return prisma.category.findMany({
       include: {
-        events: true // Include events related to each category
+        events: {
+          include: {
+            images: true,
+          },
+        } // Include events related to each category
       }
     });
   }

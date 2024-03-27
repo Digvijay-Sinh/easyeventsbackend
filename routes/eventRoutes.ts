@@ -23,13 +23,13 @@ router.get(
 );
 
 // Route to create a new event
-router.post("/", eventController.create.bind(eventController));
+router.post("/", verifyJWT,eventController.create.bind(eventController));
 
 // Route to retrieve an event by ID
 router.get("/:id", eventController.findById.bind(eventController));
 
 // Route to update an event by ID
-router.put("/:id", eventController.update.bind(eventController));
+router.put("/:id", verifyJWT ,eventController.updateBasicDetail.bind(eventController));
 
 // Route to delete an event by ID
 router.delete("/:id", eventController.remove.bind(eventController));
