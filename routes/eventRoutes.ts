@@ -32,6 +32,6 @@ router.get("/:id", eventController.findById.bind(eventController));
 router.put("/:id", verifyJWT ,eventController.updateBasicDetail.bind(eventController));
 
 // Route to delete an event by ID
-router.delete("/:id", eventController.remove.bind(eventController));
+router.delete("/:id", verifyJWT,eventController.deleteEvent.bind(eventController));
 
 export default router;

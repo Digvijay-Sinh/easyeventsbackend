@@ -105,6 +105,29 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
+  async deleteEvent(req: CustomRequest , res: Response): Promise<void> {
+    try {
+      const eventId = Number(req.params.id);
+
+      console.log("==============create event model===========");
+      console.log(req.body);
+      console.log("====================================");
+      const newEvent = await eventModel.deleteEvent( eventId,{ organizer_id: req?.user as string});
+      if (!newEvent) {
+        res.status(500).json({ error: true, message: "Cannot delete event ! Because already some seats are booked!" });
+        return ;
+
+      }
+      res.json({
+        error: false,
+        message: "Event deleted successfully!",
+        data: newEvent,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
 
   async findById(req: Request, res: Response): Promise<void> {
     try {

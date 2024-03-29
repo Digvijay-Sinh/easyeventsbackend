@@ -107,6 +107,44 @@ export class EventModel {
     }
   }
   
+  async deleteEvent(eventId: number, updatedEventData: any): Promise<Event | null> {
+    try {
+      // Fetch the event to verify the organizer_id
+      const existingEvent = await prisma.event.findUnique({
+        where: {
+          id: eventId,
+        },
+        select: {
+          organizer_id: true,
+        },
+      });
+  
+      if (!existingEvent) {
+        console.error("Event not found");
+        return null;
+      }
+  
+      // Check if the provided organizer_id matches the organizer_id of the event
+      if (existingEvent.organizer_id !== updatedEventData.organizer_id) {
+        console.error("Organizer ID mismatch");
+        return null;
+      }
+  
+      // Proceed with the update
+      const updatedEvent = await prisma.event.delete({
+        where: {
+          id: eventId,
+        }
+      });
+  
+      return updatedEvent;
+    } catch (error) {
+      // Handle error
+      console.error("Error updating event:", error);
+      return null;
+    }
+  }
+  
   // async create(eventData: any): Promise<Event> {
 
   //   const {images, speakers, ...rest } = eventData;
@@ -153,6 +191,7 @@ export class EventModel {
         name: true,
         isAuthenticated: true,
         googleId: true,
+        profileImage: true,
       },
     });
 

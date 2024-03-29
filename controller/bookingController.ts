@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { BookingModel } from "../models/bookingModel";
+import QRCode from 'qrcode';
 
 const bookingModel = new BookingModel();
 
@@ -17,13 +18,33 @@ export class BookingController {
   }
 
   async create(req: CustomRequest, res: Response): Promise<void> {
-    try {
+    
 
-      const userId=req.user 
-      console.log('========fsdfsdfdsfsdfsdds===============');
+    try {
+      const generateQRCode = async (text: string, filepath: string) => {
+        try {
+            await QRCode.toFile(filepath, text, {
+                color: {
+                    dark: '#FFF',  // Blue dots
+                    light: '#0000' // Transparent background
+                }
+            });
+            console.log('QR code generated successfully');
+        } catch (err) {
+            console.error(err);
+        }
+      };
+
+      const text = JSON.stringify(req.body);
+     
+
+      const userId=req.user
+      console.log('========fsdfsdfdsfsdfsdds===============')
       console.log(userId);
       console.log('====================================');
-      const newBooking = await bookingModel.create({...req.body, userId: userId});
+      const fileName= `${userId? userId + Date.now(): "no"}.png`
+      await generateQRCode(text, `uploads/${fileName}`);
+      const newBooking = await bookingModel.create({...req.body ,userId: userId, qrCodeImageUrl: fileName});
       res.json({
         error: false,
         message: "Booking added successfully!",

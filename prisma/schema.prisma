@@ -49,9 +49,9 @@ model Speaker {
 // Define EventSpeakerMapping model
 model EventSpeakerMapping {
   id         Int     @id @default(autoincrement())
-  event      Event   @relation(fields: [event_id], references: [id])
+  event      Event   @relation(fields: [event_id], references: [id], onDelete : Cascade)
   event_id   Int
-  speaker    Speaker @relation(fields: [speaker_id], references: [id])
+  speaker    Speaker @relation(fields: [speaker_id], references: [id], onDelete : Cascade)
   speaker_id Int
 }
 
@@ -73,7 +73,7 @@ model Venue {
 model Image {
   id           Int    @id @default(autoincrement())
   poster_image String
-  event        Event  @relation(fields: [event_id], references: [id])
+  event        Event  @relation(fields: [event_id], references: [id], onDelete : Cascade)
   event_id     Int
 }
 
@@ -126,6 +126,7 @@ model Booking {
   id               Int      @id @default(autoincrement())
   eventId          Int
   userId           Int
+  qrCodeImageUrl   String? @default("qrcode.png")
   bookingDateTime  DateTime  @db.Timestamptz(3)
   numberOfTickets  Int
   bookingStatus    String // You can use an enum for booking status (e.g., confirmed, pending, cancelled)

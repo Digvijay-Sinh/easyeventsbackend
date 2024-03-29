@@ -4,9 +4,144 @@ import nodemailer from "nodemailer";
 import otpGenerator from "otp-generator";
 import jwt from "jsonwebtoken";
 import { successResponseWithData, errorResponse } from './Responses'; // Import your response helper functions
+import { CustomRequest } from "../middleware/middleware";
 
 
 const prisma = new PrismaClient();
+
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+      console.log("====================================");
+      console.log("reached here");
+      console.log("====================================");
+      const { email } = req.body;
+
+      console.log("====================================");
+      console.log(email);
+      console.log("====================================");
+
+      // Finding user by email
+
+      const user = await prisma.userDemo.findFirst({
+        where: {
+          email: email,
+        },
+      });
+      if (!user) {
+        errorResponse(res, "No user found");
+        return
+     }
+    
+
+
+
+      // Creating new user
+
+
+      let newUserId = user.id;
+      // try {
+
+      //     await User.updatePassword(user[0].user_id, password);
+
+      //     console.log('New user created with ID:', newUserId);
+      // } catch (err) {
+      //     console.error('Error occurred:', err);
+      //     throw new Error("Internal server error"); // Throw custom error
+      // }
+
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: "eventmanagment27@gmail.com",
+          pass: "awdc gzjp zhac pshc",
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+  
+      const otp = otpGenerator.generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+  
+      const mailOptions = {
+        from: "eventmanagment27@gmail.com",
+        to: email,
+        subject: "OTP from easyevents",
+        text: `Your OTP is: ${otp} for forgot password.`,
+      };
+  
+      transporter.sendMail(mailOptions, async (error, info) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ error: "Error sending OTP" });
+        } else {
+          console.log(`OTP sent to ${email}: ${otp}`);
+  
+          await prisma.oTP.upsert({
+            where: { id: user.id },
+            update: { otp, createdAt: new Date() },
+            create: { userId: user.id, otp },
+          });
+  
+          res.status(200).json({ message: `OTP sent to ${email}` });
+        }
+      });
+
+      const newOTP = {
+          userId: newUserId,
+          otp: otp
+      };
+
+      console.log('====================================');
+      console.log(newOTP);
+      console.log('====================================');
+
+      // try {
+      //     // Find the existing OTP record for the user ID
+      //     const existingOTP = await OTP.findByUserId(user.user_id);
+
+      //     console.log('====================================');
+      //     console.log(existingOTP);
+      //     console.log('====================================');
+
+      //     if (!existingOTP) {
+      //         // If no OTP record exists, handle the error or create a new one
+      //         console.error('No OTP record found for the user');
+      //         throw new Error("User not found"); // Throw custom error
+
+      //     }
+
+      //     // Update the existing OTP record
+      //     const updatedOTP = { userId: user.user_id, otp: otp };
+      //     // Assuming newOTPValue is the new OTP value
+      //     console.log('====================================');
+      //     console.log(updatedOTP);
+      //     console.log('====================================');
+      //     await OTP.update(updatedOTP);
+      //     return res.status(200).json({ success: true, message: "OTP sent successfully", userId: user.user_id });
+
+      //     // Handle success
+      //     console.log('OTP updated successfully');
+      // } catch (error) {
+      //     // Handle errors
+      //     console.error('Error updating OTP:', error);
+      //     throw new Error("Error sending OTP"); // Throw custom error
+
+      // }
+
+  } catch (error) {
+    console.error("Error:", error);
+
+    res.status(500).send("Internal server error");
+  }
+};
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -161,6 +296,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 //     res.status(500).send("Internal server error");
 //   }
 // };
+
+
 export const refreshToken = async (
   req: Request,
   res: Response
@@ -416,3 +553,39 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({message:"Internal server error"});
   }
 };
+
+export const updateProfileImage = async (req: CustomRequest, res: Response): Promise<void> => {
+  try {
+    const { filename } = req.body;
+    const userId = req?.user as string;
+
+    const userFromEmail = await prisma.userDemo.findFirst({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+
+    if (!userFromEmail) {
+      res.status(400).json({ success: false, message: "User does not exists" });
+      return;
+    }
+
+    const updatedUser = await prisma.userDemo.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        profileImage: filename,
+      },
+    });
+
+    res.status(200).json({ message: `Profile Image Updated Successfully` });
+
+  } catch (error) {
+    console.error("Error:", error);
+
+    res.status(500).send("Internal server error");
+  }
+
+
+}
