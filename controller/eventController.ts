@@ -69,14 +69,35 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
-
-  async create(req: CustomRequest , res: Response): Promise<void> {
+  async getUserEventsDetailsHostedEvents(
+    req: CustomRequest,
+    res: Response
+  ): Promise<void> {
     try {
- 
+      const userId = req?.user as string;
+      console.log("==============eventController.ts===========");
+      console.log(userId);
+      const eventId = Number(req.params.id);
+      const events = await eventModel.getUserEventsDetailsHostedEvents(
+        eventId,
+        parseInt(userId)
+      );
+      res.send(events);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
+
+  async create(req: CustomRequest, res: Response): Promise<void> {
+    try {
       console.log("==============create event model===========");
       console.log(req.body);
       console.log("====================================");
-      const newEvent = await eventModel.create({...req.body, organizer_id: req?.user as string});
+      const newEvent = await eventModel.create({
+        ...req.body,
+        organizer_id: req?.user as string,
+      });
       res.json({
         error: false,
         message: "Event added successfully!",
@@ -87,14 +108,17 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
-  async updateBasicDetail(req: CustomRequest , res: Response): Promise<void> {
+  async updateBasicDetail(req: CustomRequest, res: Response): Promise<void> {
     try {
       const eventId = Number(req.params.id);
 
       console.log("==============create event model===========");
       console.log(req.body);
       console.log("====================================");
-      const newEvent = await eventModel.updateBasicDetail( eventId,{...req.body, organizer_id: req?.user as string});
+      const newEvent = await eventModel.updateBasicDetail(eventId, {
+        ...req.body,
+        organizer_id: req?.user as string,
+      });
       res.json({
         error: false,
         message: "Event updated successfully!",
@@ -105,18 +129,23 @@ export class EventController {
       res.status(500).send("Internal server error");
     }
   }
-  async deleteEvent(req: CustomRequest , res: Response): Promise<void> {
+  async deleteEvent(req: CustomRequest, res: Response): Promise<void> {
     try {
       const eventId = Number(req.params.id);
 
       console.log("==============create event model===========");
       console.log(req.body);
       console.log("====================================");
-      const newEvent = await eventModel.deleteEvent( eventId,{ organizer_id: req?.user as string});
+      const newEvent = await eventModel.deleteEvent(eventId, {
+        organizer_id: req?.user as string,
+      });
       if (!newEvent) {
-        res.status(500).json({ error: true, message: "Cannot delete event ! Because already some seats are booked!" });
-        return ;
-
+        res.status(500).json({
+          error: true,
+          message:
+            "Cannot delete event ! Because already some seats are booked!",
+        });
+        return;
       }
       res.json({
         error: false,

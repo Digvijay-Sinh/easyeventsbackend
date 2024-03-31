@@ -9,6 +9,13 @@ interface SelectedUserData {
   isAuthenticated: boolean;
   googleId: string | null;
 }
+interface SelectedUserData2 {
+  id: number;
+  email: string;
+  name: string | null;
+  mobileNumber: string | null;
+  profileImage: string | null;
+}
 
 type UserEventsDetails = {
   userData: SelectedUserData[];
@@ -19,6 +26,22 @@ type UserEventsDetails = {
 type UserParticipation = {
   booking: Booking;
 };
+
+interface BookingWithUserData {
+  id: number;
+  eventId: number;
+  userId: number;
+
+  qrCodeImageUrl: string | null;
+  bookingDateTime: Date;
+  numberOfTickets: number;
+  bookingStatus: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  totalAmount: number;
+  bookingReference: string;
+  user: SelectedUserData2; // User data associated with the booking
+}
 
 export class EventModel {
   async findAll(): Promise<Event[]> {
@@ -68,7 +91,10 @@ export class EventModel {
   async create(eventData: any): Promise<Event> {
     return prisma.event.create({ data: eventData });
   }
-  async updateBasicDetail(eventId: number, updatedEventData: any): Promise<Event | null> {
+  async updateBasicDetail(
+    eventId: number,
+    updatedEventData: any
+  ): Promise<Event | null> {
     try {
       // Fetch the event to verify the organizer_id
       const existingEvent = await prisma.event.findUnique({
@@ -79,18 +105,18 @@ export class EventModel {
           organizer_id: true,
         },
       });
-  
+
       if (!existingEvent) {
         console.error("Event not found");
         return null;
       }
-  
+
       // Check if the provided organizer_id matches the organizer_id of the event
       if (existingEvent.organizer_id !== updatedEventData.organizer_id) {
         console.error("Organizer ID mismatch");
         return null;
       }
-  
+
       // Proceed with the update
       const updatedEvent = await prisma.event.update({
         where: {
@@ -98,7 +124,7 @@ export class EventModel {
         },
         data: updatedEventData,
       });
-  
+
       return updatedEvent;
     } catch (error) {
       // Handle error
@@ -106,8 +132,11 @@ export class EventModel {
       return null;
     }
   }
-  
-  async deleteEvent(eventId: number, updatedEventData: any): Promise<Event | null> {
+
+  async deleteEvent(
+    eventId: number,
+    updatedEventData: any
+  ): Promise<Event | null> {
     try {
       // Fetch the event to verify the organizer_id
       const existingEvent = await prisma.event.findUnique({
@@ -118,25 +147,25 @@ export class EventModel {
           organizer_id: true,
         },
       });
-  
+
       if (!existingEvent) {
         console.error("Event not found");
         return null;
       }
-  
+
       // Check if the provided organizer_id matches the organizer_id of the event
       if (existingEvent.organizer_id !== updatedEventData.organizer_id) {
         console.error("Organizer ID mismatch");
         return null;
       }
-  
+
       // Proceed with the update
       const updatedEvent = await prisma.event.delete({
         where: {
           id: eventId,
-        }
+        },
       });
-  
+
       return updatedEvent;
     } catch (error) {
       // Handle error
@@ -144,7 +173,7 @@ export class EventModel {
       return null;
     }
   }
-  
+
   // async create(eventData: any): Promise<Event> {
 
   //   const {images, speakers, ...rest } = eventData;
@@ -231,10 +260,72 @@ export class EventModel {
       organizerEvents: organizerEvents,
     };
   }
+  async getUserEventsDetailsHostedEvents(
+    eventId: number,
+    userId: number
+  ): Promise<BookingWithUserData[] | null> {
+    const event = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        organizer_id: true,
+      },
+    });
+
+    if (!event) {
+      console.error("Event not found");
+      return null;
+    }
+
+    if (event.organizer_id !== userId) {
+      console.error("User is not the organizer of this event");
+      return null;
+    }
+    const userParticipatedEvents = await prisma.booking.findMany({
+      where: {
+        eventId: eventId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            mobileNumber: true,
+            profileImage: true,
+          },
+        },
+      },
+    });
+
+    return userParticipatedEvents.map((booking) => {
+      return {
+        id: booking.id,
+        eventId: booking.eventId,
+        userId: booking.userId,
+        qrCodeImageUrl: booking.qrCodeImageUrl,
+        bookingDateTime: booking.bookingDateTime,
+        numberOfTickets: booking.numberOfTickets,
+        bookingStatus: booking.bookingStatus,
+        paymentStatus: booking.paymentStatus,
+        paymentMethod: booking.paymentMethod,
+        totalAmount: booking.totalAmount,
+        bookingReference: booking.bookingReference,
+        user: {
+          id: booking.user.id,
+          email: booking.user.email,
+          name: booking.user.name,
+          mobileNumber: booking.user.mobileNumber,
+          profileImage: booking.user.profileImage,
+        },
+      };
+    });
+  }
 
   async search(searchTerm: string, filters?: SearchFilters): Promise<Event[]> {
     const query = searchTerm;
-    
+
     const filterConditions: any[] = [];
 
     if (filters?.category) {
@@ -260,17 +351,27 @@ export class EventModel {
       // Extract the date part from the provided start and end dates
       const startDate = new Date(filters.startDate);
       const endDate = new Date(filters.endDate);
-    
+
       // Extract only the date part
-      const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-      const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-    
+      const startDateOnly = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate()
+      );
+      const endDateOnly = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate()
+      );
+
       // Include filter conditions for start and end dates
       filterConditions.push({
         // Compare with the start of the provided date (00:00:00)
         start_date: { gte: startDateOnly },
         // Compare with the end of the provided date (23:59:59)
-        end_date: { lte: new Date(endDateOnly.getTime() + (24 * 60 * 60 * 1000 - 1)) }, // Add one day and subtract one millisecond
+        end_date: {
+          lte: new Date(endDateOnly.getTime() + (24 * 60 * 60 * 1000 - 1)),
+        }, // Add one day and subtract one millisecond
       });
     }
     console.log(filterConditions);

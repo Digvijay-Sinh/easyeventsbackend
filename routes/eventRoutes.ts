@@ -21,17 +21,30 @@ router.get(
   verifyJWT,
   eventController.getUserEventsDetails.bind(eventController)
 );
+router.get(
+  "/getUserEventsDetailsHostedEvents/:id",
+  verifyJWT,
+  eventController.getUserEventsDetailsHostedEvents.bind(eventController)
+);
 
 // Route to create a new event
-router.post("/", verifyJWT,eventController.create.bind(eventController));
+router.post("/", verifyJWT, eventController.create.bind(eventController));
 
 // Route to retrieve an event by ID
 router.get("/:id", eventController.findById.bind(eventController));
 
 // Route to update an event by ID
-router.put("/:id", verifyJWT ,eventController.updateBasicDetail.bind(eventController));
+router.put(
+  "/:id",
+  verifyJWT,
+  eventController.updateBasicDetail.bind(eventController)
+);
 
 // Route to delete an event by ID
-router.delete("/:id", verifyJWT,eventController.deleteEvent.bind(eventController));
+router.delete(
+  "/:id",
+  verifyJWT,
+  eventController.deleteEvent.bind(eventController)
+);
 
 export default router;
