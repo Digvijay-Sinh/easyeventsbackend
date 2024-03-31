@@ -18,9 +18,9 @@ model Event {
   start_date_toRegister DateTime  @db.Timestamptz(3)
   end_date_toRegister   DateTime  @db.Timestamptz(3)
   mode                  EventMode // online or offline
-  capacity              Int
+  capacity              Int 
+  tickets_remaining     Int    @default(0)
   price                 Int
-
   // Relationships
   organizer           UserDemo              @relation(fields: [organizer_id], references: [id])
   organizer_id        Int

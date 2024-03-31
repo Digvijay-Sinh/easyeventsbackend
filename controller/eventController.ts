@@ -97,6 +97,7 @@ export class EventController {
       const newEvent = await eventModel.create({
         ...req.body,
         organizer_id: req?.user as string,
+        tickets_remaining: req.body.capacity,
       });
       res.json({
         error: false,
