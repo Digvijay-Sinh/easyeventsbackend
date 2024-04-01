@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { EventModel } from "../models/eventModel";
 import { ImageModel } from "../models/posterImageModel";
 import { CustomRequest } from "../middleware/middleware";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 const eventModel = new EventModel();
 const imageModel = new ImageModel();
@@ -38,6 +40,28 @@ export class EventController {
 
       const events = await eventModel.search(searchTerm, filters);
       res.send(events);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Internal server error");
+    }
+  }
+  async paginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1; // Get page number from query parameter or default to 1
+      const pageSize = 1; // Number of items per page
+      const totalCount = await prisma.event.count();
+
+      const data = await prisma.event.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          images: true,
+          category: true, // Include the category information
+          type: true, // Include the type information
+        },
+      });
+
+      res.json({ data, totalCount });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).send("Internal server error");

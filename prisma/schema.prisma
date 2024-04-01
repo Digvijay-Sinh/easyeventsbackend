@@ -65,6 +65,7 @@ model Venue {
   city            String
   state           String
   country         String
+  postcode         String  @default("000000")
   google_place_id String? @default("")
   events          Event[] // One-to-many relation with Event model
 }

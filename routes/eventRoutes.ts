@@ -12,6 +12,7 @@ const router = express.Router();
 //v2
 router.get("/", eventController.findAll.bind(eventController));
 router.get("/search", eventController.search.bind(eventController));
+router.get("/paginated", eventController.paginated.bind(eventController));
 router.get(
   "/detailed/:id",
   eventController.findAllInDetail.bind(eventController)
