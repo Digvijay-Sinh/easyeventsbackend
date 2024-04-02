@@ -34,8 +34,7 @@ export class EventController {
         startDate: req.query.startDate as string,
         endDate: req.query.endDate as string,
       };
-      console.log("$@$#$#$#$#$E$");
-
+   
       console.log(filters);
 
       const events = await eventModel.search(searchTerm, filters);
@@ -48,7 +47,7 @@ export class EventController {
   async paginated(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1; // Get page number from query parameter or default to 1
-      const pageSize = 1; // Number of items per page
+      const pageSize = 4; // Number of items per page
       const totalCount = await prisma.event.count();
 
       const data = await prisma.event.findMany({
@@ -61,7 +60,7 @@ export class EventController {
         },
       });
 
-      res.json({ data, totalCount });
+      res.json({ data, totalCount: Math.ceil(totalCount/4) });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).send("Internal server error");
@@ -143,6 +142,8 @@ export class EventController {
       const newEvent = await eventModel.updateBasicDetail(eventId, {
         ...req.body,
         organizer_id: req?.user as string,
+        tickets_remaining: req.body.capacity,
+
       });
       res.json({
         error: false,
