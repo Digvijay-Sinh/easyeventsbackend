@@ -32,5 +32,10 @@ export class EventSpeakerMappingController {
     }
   }
 
+
+  async create111(){
+   
+  }
+
   // Additional methods for updating and removing mappings can be implemented similarly
 }

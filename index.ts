@@ -11,6 +11,7 @@ import speakerRoutes from "./routes/speakerRoutes";
 import posterImage from "./routes/posterImageRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
 import qrcodeRoutes from "./routes/qrcodeRoutes";
+import paymentRoutes from "./routes/paymentRoutes";
 import verifyJWT from "./middleware/middleware";
 import cors from "cors";
 import session, { Session } from "express-session";
@@ -61,6 +62,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 
 app.use(
   cors({
@@ -72,7 +74,6 @@ app.use(
 const customMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Log information about the incoming request
   logger.info(`Incoming request: ${req.method} ${req.url}`);
-  logger.error("Some error occured")
   
   // Optionally, you can modify the request or response objects
   // For example, you can add a custom property to the request object
@@ -113,6 +114,9 @@ app.use("/api/v1/posterImage", posterImage);
 app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/qrcode", qrcodeRoutes);
 
+app.use("/api/v1/payment", paymentRoutes);
+
+
 app.post("/api/v1/register", (req: Request, res: Response) => {
   const { firstname, lastname, email } = req.body;
 
@@ -127,7 +131,9 @@ app.post("/api/v1/register", (req: Request, res: Response) => {
     .json({ success: true, message: "User registered successfully" });
 });
 
-
+app.get("/api/v1/getkey", (req, res) =>
+  res.status(200).json({ key: "rzp_test_XuVfyqvtWcYTbz" })
+);
 const PORT = 5000;
 
 app.listen(PORT, () => {
