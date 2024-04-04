@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { CategoryModel } from "../models/categoryModel";
+import { logger } from "..";
 
 const categoryModel = new CategoryModel();
 
@@ -7,6 +8,8 @@ export class CategoryController {
   async findAll(req: Request, res: Response): Promise<void> {
     try {
       const categories = await categoryModel.findAll();
+
+      logger.info(categories)
       res.status(200).json(categories);
     } catch (error) {
       console.error("Error:", error);

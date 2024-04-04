@@ -15,7 +15,27 @@ import verifyJWT from "./middleware/middleware";
 import cors from "cors";
 import session, { Session } from "express-session";
 import cookieParser from "cookie-parser";
-const app = express();
+import pino, {LoggerOptions} from "pino";
+
+  // Logger configuration
+
+  const app = express();
+  const loggerOptions: LoggerOptions = {
+    name: 'easyevents',
+    level: 'debug',
+    transport:{
+      target: 'pino-pretty',
+      options:{
+        colorize: true,
+        colorizeObjects: true,
+      }
+    }
+  };
+  export const logger = pino(loggerOptions);
+  
+  
+  // Use the expressPinoLogger middleware with the logger instance
+
 app.use(cookieParser());
 
 import { PrismaClient } from "@prisma/client";
@@ -44,10 +64,28 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost"],
     credentials: true,
   })
 );
+
+const customMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Log information about the incoming request
+  logger.info(`Incoming request: ${req.method} ${req.url}`);
+  logger.error("Some error occured")
+  
+  // Optionally, you can modify the request or response objects
+  // For example, you can add a custom property to the request object
+  // req.customProperty = 'Custom value';
+  
+  // Call next() to pass control to the next middleware function in the stack
+  next();
+};
+
+// Example usage: Apply the custom middleware to all routes
+app.use(customMiddleware);
+
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -56,6 +94,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req: Request, res: Response) => {
   res.send("Home page");
 });
+app.get("/api", (req: Request, res: Response) => {
+  res.send("Home page");
+});
+
+
 
 // app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/events", eventRoutes);
